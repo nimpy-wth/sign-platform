@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SignEmploy - TSL/ASL Vocational App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/vision_bundle.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .modal-backdrop {
+            background-color: rgba(0,0,0,0.5);
+        }
+        .grammar-card {
+            border-left-width: 8px;
+            cursor: grab;
+        }
+        .grammar-card:active {
+            cursor: grabbing;
+        }
+        .noun { border-color: #3b82f6; background-color: #eff6ff; color: #1e40af; } /* blue */
+        .verb { border-color: #16a34a; background-color: #f0fdf4; color: #15803d; } /* green */
+        .object { border-color: #ef4444; background-color: #fef2f2; color: #b91c1c; } /* red */
+        .adjective { border-color: #f97316; background-color: #fff7ed; color: #c2410c; } /* orange */
+        .subject { border-color: #8b5cf6; background-color: #f5f3ff; color: #6d28d9; } /* violet */
+        
+        .sentence-box {
+            min-height: 80px;
+            border: 2px dashed #cbd5e1;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-6 lg:p-8">
+
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold gradient-bg text-transparent bg-clip-text">SignEmploy</h1>
+            <p class="text-gray-600 mt-2 text-lg">Your Bridge to a Career in Sign Language</p>
+        </header>
+
+        <div id="main-menu" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div onclick="showView('vocabulary-hub')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover">
+                <h2 class="text-2xl font-bold mb-2 text-indigo-600">Vocabulary</h2>
+                <p class="text-gray-600">Learn signs for specific industries and general vocabulary.</p>
+            </div>
+            <div onclick="showView('grammar-lab')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover">
+                <h2 class="text-2xl font-bold mb-2 text-indigo-600">Grammar Lab</h2>
+                <p class="text-gray-600">Master TSL and ASL sentence structure with interactive color cards.</p>
+            </div>
+            <div onclick="showView('asl-practice')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover">
+                <h2 class="text-2xl font-bold mb-2 text-indigo-600">ASL Fingerspelling</h2>
+                <p class="text-gray-600">Practice fingerspelling with live feedback from your webcam.</p>
+            </div>
+            <div onclick="showView('freelancer-hub')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover">
+                <h2 class="text-2xl font-bold mb-2 text-indigo-600">Freelancer Hub</h2>
+                <p class="text-gray-600">Find paid tutoring and translation jobs to start your career.</p>
+            </div>
+        </div>
+
+        <div id="views-container" class="mt-8">
+
+            <div id="vocabulary-hub" class="hidden">
+                <button onclick="showView('main-menu')" class="mb-4 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">&larr; Back to Menu</button>
+                <h2 class="text-3xl font-bold mb-6 text-center">Job-Specific Vocabulary</h2>
+                <div id="vocab-category-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    </div>
+            </div>
+
+            <div id="grammar-lab" class="hidden">
+                <button onclick="showView('main-menu')" class="mb-4 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">&larr; Back to Menu</button>
+                <h2 class="text-3xl font-bold mb-2 text-center">Grammar Lab</h2>
+                <p class="text-center text-gray-600 mb-6">Drag and drop the cards to build a sentence. TSL often uses Object-Subject-Verb (OSV).</p>
+                <div class="bg-white p-6 rounded-xl shadow-lg">
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-lg">Word Bank:</h3>
+                        <div id="word-bank" class="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-lg">
+                            </div>
+                    </div>
+                    <div class="mb-4">
+                        <h3 class="font-semibold text-lg">Your Sentence:</h3>
+                        <div id="sentence-box" class="sentence-box p-4 rounded-lg bg-gray-50 flex flex-wrap gap-2 items-center">
+                            </div>
+                    </div>
+                    <div class="flex items-center justify-between">
+                        <button onclick="checkGrammar()" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors">Check Sentence</button>
+                        <button onclick="resetGrammar()" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors">Reset</button>
+                    </div>
+                    <p id="grammar-feedback" class="mt-4 h-6 text-lg font-medium text-center"></p>
+                </div>
+            </div>
+
+            <div id="asl-practice" class="hidden">
+                <button onclick="showView('main-menu'); stopWebcam();" class="mb-4 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">&larr; Back to Menu</button>
+                <h2 class="text-3xl font-bold mb-6 text-center">ASL Fingerspelling Practice</h2>
+                <div class="bg-white p-6 rounded-xl shadow-lg text-center">
+                    <p class="mb-4 text-gray-600">Enable your webcam and practice fingerspelling. Your detected letters will appear below.</p>
+                    <div class="relative w-full max-w-xl mx-auto aspect-video bg-gray-900 rounded-lg mb-4 shadow-inner">
+                        <video id="webcam" class="w-full h-full rounded-lg" autoplay playsinline></video>
+                        <canvas id="output_canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                    </div>
+                    <button id="webcamButton" onclick="toggleWebcam()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors text-lg font-semibold">Start Webcam</button>
+                    
+                    <div class="mt-6 text-left max-w-xl mx-auto">
+                        <p id="live-prediction" class="h-6 text-lg font-medium text-center text-gray-500">Live Detection: None</p>
+                        <div class="mt-4 p-4 bg-gray-100 rounded-lg shadow-inner">
+                            <label class="font-bold text-gray-700">Detected Text:</label>
+                            <p id="detected-text-display" class="text-2xl font-mono h-8">_</p>
+                        </div>
+                        <button onclick="resetFingerspelling()" class="mt-4 bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-colors w-full">Reset Text</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="freelancer-hub" class="hidden">
+                <button onclick="showView('main-menu')" class="mb-4 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">&larr; Back to Menu</button>
+                <h2 class="text-3xl font-bold mb-6 text-center">Freelancer Hub</h2>
+                <div class="space-y-4">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold text-green-700">Job: TSL Tutor for Beginners</h3>
+                        <p class="text-gray-600 mt-1">A family is looking for a deaf tutor to teach their child basic TSL. 2 hours/week.</p>
+                        <button class="mt-3 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">Apply Now</button>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h3 class="text-xl font-bold text-green-700">Job: ASL to English Video Translation</h3>
+                        <p class="text-gray-600 mt-1">A marketing company needs a 5-minute promotional video translated from ASL to written English subtitles.</p>
+                        <button class="mt-3 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">Apply Now</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="vocab-modal" class="fixed inset-0 modal-backdrop items-center justify-center p-4 hidden">
+        <div class="bg-white w-full max-w-4xl rounded-xl shadow-2xl p-6 relative">
+            <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            <h2 id="modal-title" class="text-3xl font-bold mb-4"></h2>
+            <div id="modal-content" class="flex flex-col md:flex-row gap-6">
+                </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- Mediapipe Imports ---
+        import { GestureRecognizer, FilesetResolver, DrawingUtils } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.js";
+
+        // --- Mock Data ---
+        const vocabularyData = {
+            "Greetings": ["Hello", "Goodbye", "Thank You", "Sorry", "Welcome"],
+            "Animals": ["Cat", "Dog", "Bird", "Fish", "Lion", "Bear"],
+            "Hospitality": ["Reservation", "Check-in", "Menu", "Allergy", "Guest", "Room Service"],
+            "Graphic Design": ["Logo", "Color", "Typography", "Layout", "Client", "Deadline"],
+            "E-commerce": ["Cart", "Checkout", "Shipping", "Return", "Customer", "Product"]
+        };
+
+        const grammarData = {
+            sentence: "The cat chases the dog",
+            solution: ["The cat", "chases", "the dog"],
+            tsl_solution: ["the dog", "The cat", "chases"],
+            words: [
+                { text: "The cat", type: "subject" },
+                { text: "the dog", type: "object" },
+                { text: "chases", type: "verb" }
+            ]
+        };
+
+        // --- View Management ---
+        const views = ['main-menu', 'vocabulary-hub', 'grammar-lab', 'asl-practice', 'freelancer-hub'];
+        window.showView = function(viewId) {
+            views.forEach(id => {
+                const el = document.getElementById(id);
+                if (id === viewId) {
+                    el.style.display = id === 'main-menu' ? 'grid' : 'block';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+            if (viewId === 'main-menu') {
+                document.getElementById('main-menu').style.display = 'grid';
+            } else if (viewId === 'grammar-lab') {
+                initializeGrammarLab();
+            }
+        }
+
+        // --- Vocabulary Hub & Modal ---
+        function setupVocabularyHub() {
+            const grid = document.getElementById('vocab-category-grid');
+            grid.innerHTML = '';
+            const colors = ['blue', 'green', 'red', 'purple', 'orange'];
+            let colorIndex = 0;
+            for (const category in vocabularyData) {
+                const color = colors[colorIndex % colors.length];
+                const card = document.createElement('div');
+                card.className = `cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover text-center`;
+                card.innerHTML = `<h3 class="text-2xl font-semibold text-${color}-600">${category}</h3>`;
+                card.onclick = () => showVocabCategory(category);
+                grid.appendChild(card);
+                colorIndex++;
+            }
+        }
+
+        window.showVocabCategory = function(category) {
+            const modal = document.getElementById('vocab-modal');
+            const title = document.getElementById('modal-title');
+            const content = document.getElementById('modal-content');
+            
+            title.textContent = `${category} Vocabulary`;
+            
+            const words = vocabularyData[category];
+            const wordListHTML = words.map(word => 
+                `<li class="p-2 rounded-md hover:bg-indigo-100 cursor-pointer" onclick="selectVocabWord('${word}', '${category}')">${word}</li>`
+            ).join('');
+
+            content.innerHTML = `
+                <div class="w-full md:w-1/3 border-r border-gray-200 pr-4">
+                    <h3 class="font-semibold text-lg mb-2">Word List</h3>
+                    <ul id="word-list" class="space-y-1">${wordListHTML}</ul>
+                </div>
+                <div class="w-full md:w-2/3 flex flex-col items-center justify-center text-center p-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-gray-300 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11.5V14m0-2.5v-6a1.5 1.5 0 113 0m-3 6a1.5 1.5 0 00-3 0v2a7.5 7.5 0 0015 0v-5a1.5 1.5 0 00-3 0m-6-3V11m0-5.5v-1a1.5 1.5 0 013 0v1m0 0V11m0-5.5a1.5 1.5 0 013 0v3m0 0V11" /></svg>
+                    <h3 id="selected-word-title" class="font-semibold text-xl text-gray-600">Select a word from the list to start practicing.</h3>
+                </div>
+            `;
+
+            modal.style.display = 'flex';
+        }
+        
+        window.selectVocabWord = function(word, category) {
+            const content = document.getElementById('modal-content');
+            
+            // Re-render word list with active selection
+            const wordListHTML = vocabularyData[category].map(w => 
+                `<li class="p-2 rounded-md cursor-pointer ${w === word ? 'bg-indigo-100 font-bold text-indigo-700' : 'hover:bg-indigo-100'}" onclick="selectVocabWord('${w}', '${category}')">${w}</li>`
+            ).join('');
+
+            // Example resources (replace with your own images/videos)
+            const pictureUrl = `https://via.placeholder.com/400x225/E8E8E8/A0A0A0?text=${word}`; // Placeholder image
+            const videoUrl = `assets/videos/${word.toLowerCase()}.mp4`; // Assumes local video files
+
+            content.innerHTML = `
+                <div class="w-full md:w-1/3 border-r border-gray-200 pr-4">
+                    <h3 class="font-semibold text-lg mb-2">Word List</h3>
+                    <ul id="word-list" class="space-y-1">${wordListHTML}</ul>
+                </div>
+                <div class="w-full md:w-2/3 flex flex-col items-center p-4">
+                    <h3 class="font-semibold text-xl mb-4">Practice: <span class="text-indigo-600">${word}</span></h3>
+                    <div id="practice-stage" class="w-full max-w-md bg-gray-100 rounded-xl p-4 shadow-inner text-center">
+                        <img id="word-picture" src="${pictureUrl}" 
+                            class="w-full h-56 object-contain bg-white rounded-lg cursor-pointer shadow-md transition-transform hover:scale-105" 
+                            alt="${word}" 
+                            onclick="showSignVideo('${videoUrl}','${word}')">
+                        <p class="text-gray-600 mt-3">Click the image to view the sign video.</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.showSignVideo = function(videoUrl, word) {
+            const stage = document.getElementById('practice-stage');
+            stage.innerHTML = `
+                <video id="sign-video" src="${videoUrl}" class="w-full max-w-sm h-56 rounded-lg shadow-md cursor-pointer bg-black" autoplay loop muted controls oncanplaythrough="this.muted=true; this.play();">
+                    Your browser does not support the video tag.
+                </video>
+                <p class="text-gray-600 my-3">Example video for '${word}'.</p>
+                <button onclick="startSignCheck('${word}')" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600">Check My Sign</button>
+            `;
+        }
+
+        window.startSignCheck = function(word) {
+            const stage = document.getElementById('practice-stage');
+            stage.innerHTML = `
+                <div class="relative w-full max-w-sm aspect-video bg-gray-900 rounded-lg mb-2 shadow-inner">
+                    <video id="vocab-webcam" class="w-full h-full rounded-lg" autoplay playsinline></video>
+                    <canvas id="vocab-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+                </div>
+                <p id="vocab-feedback" class="mt-2 text-lg font-medium text-center"></p>
+                <button onclick="stopVocabCheck('${word}')" class="mt-3 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600">Stop</button>
+            `;
+
+            startVocabWebcam(word);
+        }
+
+        function startVocabWebcam(word) {
+            const video = document.getElementById('vocab-webcam');
+            const feedback = document.getElementById('vocab-feedback');
+            if(!video) return;
+
+            navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+                video.srcObject = stream;
+                video.addEventListener("loadeddata", () => {
+                    // TODO: Connect this to a model that recognizes vocabulary words, not just letters.
+                    feedback.textContent = `Checking sign for '${word}'...`;
+                    feedback.style.color = 'orange';
+                });
+            });
+        }
+
+        window.stopVocabCheck = function(word) {
+            const video = document.getElementById('vocab-webcam');
+            if (video && video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            // Restore the image view after stopping the camera
+            const pictureUrl = `https://via.placeholder.com/400x225/E8E8E8/A0A0A0?text=${word}`;
+            const videoUrl = `assets/videos/${word.toLowerCase()}.mp4`;
+            document.getElementById('practice-stage').innerHTML = `
+                <img id="word-picture" src="${pictureUrl}" 
+                    class="w-full h-56 object-contain bg-white rounded-lg cursor-pointer shadow-md transition-transform hover:scale-105" 
+                    alt="${word}" 
+                    onclick="showSignVideo('${videoUrl}','${word}')">
+                <p class="text-gray-600 mt-3">Click the image to view the sign video.</p>
+            `;
+        }
+
+        window.closeModal = function() {
+            // Ensure any active webcam in the modal is turned off
+            const video = document.getElementById('vocab-webcam');
+            if (video && video.srcObject) {
+                video.srcObject.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById('vocab-modal').style.display = 'none';
+        }
+        
+        // --- Grammar Lab ---
+        function initializeGrammarLab() {
+            const wordBank = document.getElementById('word-bank');
+            const sentenceBox = document.getElementById('sentence-box');
+            wordBank.innerHTML = '';
+            sentenceBox.innerHTML = '';
+            document.getElementById('grammar-feedback').textContent = '';
+
+            const shuffledWords = [...grammarData.words].sort(() => Math.random() - 0.5);
+
+            shuffledWords.forEach(word => {
+                const card = document.createElement('div');
+                card.id = `card-${word.text.replace(/\s/g, '')}`;
+                card.className = `grammar-card ${word.type} p-3 rounded-lg font-semibold`;
+                card.textContent = word.text;
+                card.draggable = true;
+                card.dataset.type = word.type;
+                wordBank.appendChild(card);
+            });
+            addDragAndDropListeners();
+        }
+
+        function addDragAndDropListeners() {
+            const cards = document.querySelectorAll('.grammar-card');
+            const containers = [document.getElementById('word-bank'), document.getElementById('sentence-box')];
+
+            cards.forEach(card => {
+                card.addEventListener('dragstart', () => { card.classList.add('opacity-50'); });
+                card.addEventListener('dragend', () => { card.classList.remove('opacity-50'); });
+            });
+
+            containers.forEach(container => {
+                container.addEventListener('dragover', e => {
+                    e.preventDefault();
+                    const afterElement = getDragAfterElement(container, e.clientY);
+                    const draggable = document.querySelector('.opacity-50');
+                    if (afterElement == null) {
+                        container.appendChild(draggable);
+                    } else {
+                        container.insertBefore(draggable, afterElement);
+                    }
+                });
+            });
+        }
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.grammar-card:not(.opacity-50)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        window.checkGrammar = function() {
+            const sentenceBox = document.getElementById('sentence-box');
+            const feedbackEl = document.getElementById('grammar-feedback');
+            const userSentence = [...sentenceBox.children].map(card => card.textContent);
+            
+            const isCorrectSVO = JSON.stringify(userSentence) === JSON.stringify(grammarData.solution);
+            const isCorrectTSL = JSON.stringify(userSentence) === JSON.stringify(grammarData.tsl_solution);
+
+            if (isCorrectSVO) {
+                feedbackEl.textContent = "Correct! That's a valid English (SVO) sentence.";
+                feedbackEl.style.color = 'green';
+            } else if (isCorrectTSL) {
+                feedbackEl.textContent = "Excellent! That's a valid Thai Sign Language (OSV) sentence.";
+                feedbackEl.style.color = 'green';
+            } else {
+                feedbackEl.textContent = "Not quite right. Try another combination.";
+                feedbackEl.style.color = 'red';
+            }
+        }
+
+        window.resetGrammar = function() { initializeGrammarLab(); }
+
+        // --- ASL Practice ---
+        let detectedText = "";
+        let predictionQueue = [];
+        const smoothingWindow = 10; // Number of frames to average over
+        let lastConfirmedLetter = null;
+
+        window.resetFingerspelling = function() {
+            detectedText = "";
+            lastConfirmedLetter = null;
+            predictionQueue = [];
+            document.getElementById('detected-text-display').textContent = "_";
+        }
+        
+        // --- Webcam and MediaPipe Logic ---
+        const video = document.getElementById('webcam');
+        const canvasElement = document.getElementById("output_canvas");
+        const canvasCtx = canvasElement.getContext("2d");
+        const livePredictionEl = document.getElementById('live-prediction');
+        const detectedTextEl = document.getElementById('detected-text-display');
+        let gestureRecognizer;
+        let runningMode = "VIDEO";
+        let webcamRunning = false;
+        let drawingUtils;
+        
+        const createGestureRecognizer = async () => {
+            const vision = await FilesetResolver.forVisionTasks(
+                "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+            );
+            gestureRecognizer = await GestureRecognizer.createFromOptions(vision, {
+                baseOptions: {
+                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/gesture_recognizer/gesture_recognizer/float16/1/gesture_recognizer.task",
+                    delegate: "GPU"
+                },
+                runningMode: runningMode,
+                numHands: 1
+            });
+            drawingUtils = new DrawingUtils(canvasCtx);
+        };
+        createGestureRecognizer();
+
+        window.toggleWebcam = function() {
+            if (!gestureRecognizer) {
+                alert("Gesture Recognizer is still loading. Please try again.");
+                return;
+            }
+
+            const webcamButton = document.getElementById('webcamButton');
+            if (webcamRunning) {
+                webcamButton.innerText = "Start Webcam";
+                webcamButton.classList.replace('bg-red-500', 'bg-green-500');
+                webcamButton.classList.replace('hover:bg-red-600', 'hover:bg-green-600');
+                stopWebcam();
+            } else {
+                webcamButton.innerText = "Stop Webcam";
+                webcamButton.classList.replace('bg-green-500', 'bg-red-500');
+                webcamButton.classList.replace('hover:bg-green-600', 'hover:bg-red-600');
+                startWebcam();
+            }
+        }
+
+        function startWebcam() {
+            webcamRunning = true;
+            resetFingerspelling();
+            const constraints = { video: true };
+            navigator.mediaDevices.getUserMedia(constraints).then((stream) => {
+                video.srcObject = stream;
+                video.addEventListener("loadeddata", predictWebcam);
+            }).catch(err => {
+                console.error("getUserMedia Error: ", err);
+                webcamRunning = false;
+            });
+        }
+
+        window.stopWebcam = function() {
+            webcamRunning = false;
+            const stream = video.srcObject;
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach(track => track.stop());
+                video.srcObject = null;
+            }
+            if(canvasCtx) {
+                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            }
+            livePredictionEl.textContent = 'Live Detection: None';
+            const webcamButton = document.getElementById('webcamButton');
+            if (webcamButton) {
+                webcamButton.innerText = "Start Webcam";
+                webcamButton.classList.replace('bg-red-500', 'bg-green-500');
+                webcamButton.classList.replace('hover:bg-red-600', 'hover:bg-green-600');
+            }
+        }
+
+        let lastVideoTime = -1;
+        async function predictWebcam() {
+            if (!webcamRunning) return;
+            
+            canvasElement.width = video.videoWidth;
+            canvasElement.height = video.videoHeight;
+            
+            let nowInMs = Date.now();
+            if (video.currentTime !== lastVideoTime) {
+                lastVideoTime = video.currentTime;
+                const results = gestureRecognizer.recognizeForVideo(video, nowInMs);
+
+                canvasCtx.save();
+                canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                if (results.landmarks) {
+                    for (const landmarks of results.landmarks) {
+                        drawingUtils.drawConnectors(landmarks, GestureRecognizer.HAND_CONNECTIONS, { color: "#00FF00", lineWidth: 2 });
+                        drawingUtils.drawLandmarks(landmarks, { color: "#FF0000", lineWidth: 1 });
+                    }
+                }
+                canvasCtx.restore();
+
+                if (results.gestures.length > 0) {
+                    const categoryName = results.gestures[0][0].categoryName;
+                    const categoryScore = parseFloat(results.gestures[0][0].score * 100).toFixed(2);
+                    livePredictionEl.textContent = `Live Detection: ${categoryName} (${categoryScore}%)`;
+                    
+                    // Add prediction to queue for smoothing
+                    predictionQueue.push(categoryName);
+                    if (predictionQueue.length > smoothingWindow) {
+                        predictionQueue.shift(); // Keep queue size fixed
+                        
+                        // Determine the most frequent prediction in the window
+                        const smoothedPrediction = predictionQueue.reduce(
+                            (a, b, i, arr) => (arr.filter(v => v === a).length >= arr.filter(v => v === b).length ? a : b),
+                            null
+                        );
+
+                        // Map common gestures to representative letters or actions
+                        let letter = smoothedPrediction;
+                        if (letter === "Closed_Fist") letter = "A"; // Example mapping
+                        if (letter === "Open_Palm") letter = "B";
+                        if (letter === "Victory") letter = "V";
+                        if (letter === "Thumb_Up") letter = " "; // Space gesture
+                        if (letter === "Pointing_Up") letter = "D";
+                        if (letter === "ILoveYou") letter = ""; // Ignore this one for spelling
+
+                        // Add letter if it's new and different from the last one
+                        if (letter && letter !== lastConfirmedLetter) {
+                            if(letter === " ") {
+                                    if(!detectedText.endsWith(" ")) detectedText += " ";
+                            } else {
+                                detectedText += letter;
+                            }
+                            lastConfirmedLetter = letter;
+                            predictionQueue = []; // Clear queue after a confirmation
+                            detectedTextEl.textContent = detectedText + "_";
+                        }
+                    }
+
+                } else {
+                    livePredictionEl.textContent = 'Live Detection: No hand detected';
+                    lastConfirmedLetter = null; // Reset if hand is lost
+                }
+            }
+
+            if (webcamRunning) {
+                window.requestAnimationFrame(predictWebcam);
+            }
+        }
+
+        // --- Initial setup ---
+        document.addEventListener('DOMContentLoaded', () => {
+            showView('main-menu');
+            setupVocabularyHub();
+        });
+
+    </script>
+</body>
+</html>
