@@ -49,22 +49,30 @@
             <p class="text-gray-600 mt-2 text-lg">Your Bridge to a Career in Sign Language</p>
         </header>
 
-        <div id="main-menu" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div id="main-menu" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <div onclick="showView('vocabulary-hub')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover">
                 <h2 class="text-2xl font-bold mb-2 text-indigo-600">Vocabulary</h2>
-                <p class="text-gray-600">Learn signs for specific industries and general vocabulary.</p>
+                <p class="text-gray-600">Learn job-specific signs.</p>
             </div>
             <div onclick="showView('grammar-lab')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover">
                 <h2 class="text-2xl font-bold mb-2 text-indigo-600">Grammar Lab</h2>
-                <p class="text-gray-600">Master TSL and ASL sentence structure with interactive color cards.</p>
+                <p class="text-gray-600">Practice sentence structure.</p>
             </div>
             <div onclick="showView('asl-practice')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover">
-                <h2 class="text-2xl font-bold mb-2 text-indigo-600">ASL Fingerspelling</h2>
-                <p class="text-gray-600">Practice fingerspelling with live feedback from your webcam.</p>
+                <h2 class="text-2xl font-bold mb-2 text-indigo-600">Fingerspelling</h2>
+                <p class="text-gray-600">Practice with live feedback.</p>
+            </div>
+            <div onclick="showView('training-hub')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover">
+                <h2 class="text-2xl font-bold mb-2 text-indigo-600">Vocational Training</h2>
+                <p class="text-gray-600">Find workshops and courses.</p>
+            </div>
+            <div onclick="showView('tutor-hub')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover">
+                <h2 class="text-2xl font-bold mb-2 text-indigo-600">Find a Tutor</h2>
+                <p class="text-gray-600">Connect with sign language tutors.</p>
             </div>
             <div onclick="showView('freelancer-hub')" class="cursor-pointer bg-white p-6 rounded-xl shadow-md transition-transform duration-300 card-hover">
                 <h2 class="text-2xl font-bold mb-2 text-indigo-600">Freelancer Hub</h2>
-                <p class="text-gray-600">Find paid tutoring and translation jobs to start your career.</p>
+                <p class="text-gray-600">Find translation & content jobs.</p>
             </div>
         </div>
 
@@ -121,19 +129,76 @@
                     </div>
                 </div>
             </div>
+            
+            <div id="training-hub" class="hidden">
+                <button onclick="showView('main-menu')" class="mb-4 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">&larr; Back to Menu</button>
+                <h2 class="text-3xl font-bold mb-6 text-center">Vocational Training Announcements</h2>
+                <div class="space-y-4">
+                    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                        <div class="bg-blue-100 text-blue-600 p-3 rounded-lg">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path></svg>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-xl font-bold text-blue-800">Barista Skills Workshop (TSL)</h3>
+                            <p class="text-gray-600 mt-1">Organized by: Deaf Association of Thailand</p>
+                            <p class="text-sm text-gray-500">Date: September 15, 2025</p>
+                        </div>
+                        <button class="w-full sm:w-auto bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">Learn More</button>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col sm:flex-row items-start sm:items-center space-y-4 sm:space-y-0 sm:space-x-4">
+                         <div class="bg-green-100 text-green-600 p-3 rounded-lg">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l-4 4-4-4M6 16l-4-4 4-4"></path></svg>
+                        </div>
+                        <div class="flex-grow">
+                            <h3 class="text-xl font-bold text-green-800">Intro to Graphic Design with Canva</h3>
+                            <p class="text-gray-600 mt-1">Organized by: SkillsFuture Foundation</p>
+                            <p class="text-sm text-gray-500">Date: October 5-7, 2025</p>
+                        </div>
+                        <button class="w-full sm:w-auto bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">Learn More</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tutor-hub" class="hidden">
+                <button onclick="showView('main-menu')" class="mb-4 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">&larr; Back to Menu</button>
+                <h2 class="text-3xl font-bold mb-6 text-center">Find a Sign Language Tutor</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                        <img src="https://placehold.co/100x100/EFEFEF/333?text=Tutor" class="w-24 h-24 rounded-full mx-auto mb-4" alt="Tutor Name">
+                        <h3 class="text-xl font-bold text-gray-800">Somchai Jaidee</h3>
+                        <p class="text-indigo-600 font-semibold">TSL Specialist</p>
+                        <p class="text-gray-600 mt-2 text-sm">"Experienced tutor for beginners and intermediate learners. Let's learn together!"</p>
+                        <button class="mt-4 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors w-full">Contact</button>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                        <img src="https://placehold.co/100x100/EFEFEF/333?text=Tutor" class="w-24 h-24 rounded-full mx-auto mb-4" alt="Tutor Name">
+                        <h3 class="text-xl font-bold text-gray-800">Jane Doe</h3>
+                        <p class="text-indigo-600 font-semibold">ASL & TSL Tutor</p>
+                        <p class="text-gray-600 mt-2 text-sm">"Certified ASL instructor, fluent in TSL. Specializing in conversational practice."</p>
+                        <button class="mt-4 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors w-full">Contact</button>
+                    </div>
+                     <div class="bg-white p-6 rounded-xl shadow-md text-center">
+                        <img src="https://placehold.co/100x100/EFEFEF/333?text=Tutor" class="w-24 h-24 rounded-full mx-auto mb-4" alt="Tutor Name">
+                        <h3 class="text-xl font-bold text-gray-800">David Chen</h3>
+                        <p class="text-indigo-600 font-semibold">ASL for Business</p>
+                        <p class="text-gray-600 mt-2 text-sm">"Helping professionals learn ASL for the workplace. Focus on technical vocabulary."</p>
+                        <button class="mt-4 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors w-full">Contact</button>
+                    </div>
+                </div>
+            </div>
 
             <div id="freelancer-hub" class="hidden">
                 <button onclick="showView('main-menu')" class="mb-4 bg-indigo-500 text-white px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors">&larr; Back to Menu</button>
                 <h2 class="text-3xl font-bold mb-6 text-center">Freelancer Hub</h2>
                 <div class="space-y-4">
                     <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h3 class="text-xl font-bold text-green-700">Job: TSL Tutor for Beginners</h3>
-                        <p class="text-gray-600 mt-1">A family is looking for a deaf tutor to teach their child basic TSL. 2 hours/week.</p>
+                        <h3 class="text-xl font-bold text-green-700">Job: ASL to English Video Translation</h3>
+                        <p class="text-gray-600 mt-1">A marketing company needs a 5-minute promotional video translated from ASL to written English subtitles.</p>
                         <button class="mt-3 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">Apply Now</button>
                     </div>
                     <div class="bg-white p-6 rounded-xl shadow-md">
-                        <h3 class="text-xl font-bold text-green-700">Job: ASL to English Video Translation</h3>
-                        <p class="text-gray-600 mt-1">A marketing company needs a 5-minute promotional video translated from ASL to written English subtitles.</p>
+                        <h3 class="text-xl font-bold text-green-700">Job: Sign Language Content Creator</h3>
+                        <p class="text-gray-600 mt-1">A social media agency is hiring a TSL user to create engaging educational content for their TikTok channel.</p>
                         <button class="mt-3 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">Apply Now</button>
                     </div>
                 </div>
@@ -175,7 +240,7 @@
         };
 
         // --- View Management ---
-        const views = ['main-menu', 'vocabulary-hub', 'grammar-lab', 'asl-practice', 'freelancer-hub'];
+        const views = ['main-menu', 'vocabulary-hub', 'grammar-lab', 'asl-practice', 'freelancer-hub', 'training-hub', 'tutor-hub'];
         window.showView = function(viewId) {
             views.forEach(id => {
                 const el = document.getElementById(id);
@@ -244,7 +309,7 @@
             ).join('');
 
             // Example resources (replace with your own images/videos)
-            const pictureUrl = `https://via.placeholder.com/400x225/E8E8E8/A0A0A0?text=${word}`; // Placeholder image
+            const pictureUrl = `https://placehold.co/400x225/E8E8E8/A0A0A0?text=${word}`; // Placeholder image
             const videoUrl = `assets/videos/${word.toLowerCase()}.mp4`; // Assumes local video files
 
             content.innerHTML = `
@@ -311,7 +376,7 @@
                 video.srcObject.getTracks().forEach(track => track.stop());
             }
             // Restore the image view after stopping the camera
-            const pictureUrl = `https://via.placeholder.com/400x225/E8E8E8/A0A0A0?text=${word}`;
+            const pictureUrl = `https://placehold.co/400x225/E8E8E8/A0A0A0?text=${word}`;
             const videoUrl = `assets/videos/${word.toLowerCase()}.mp4`;
             document.getElementById('practice-stage').innerHTML = `
                 <img id="word-picture" src="${pictureUrl}" 
